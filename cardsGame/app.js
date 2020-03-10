@@ -1,40 +1,32 @@
-
+let ALL_CARDS = []
+let newGameButton = document.getElementById('new-game-button')
 function thisIsProcess(urlID) {
-    return fetch(urlID)
+    return fetch(urlID).then(ans =>{
+        p = ans.json()
+        return p
+    })
 }
-
+        
 async function getData() {
-    let response = await thisIsProcess("https://deckofcardsapi.com/api/deck/new/");
+    let response = await fetch("https://deckofcardsapi.com/api/deck/new/shuffle/");
     let data = response.json();
     return data;
 }
-
-function consoleTheValue(data) {
-    return new Promise((resolve, reject) => {
-        console.log('consoleTheValue', data)
-        reject(data)
-    })
-    console.log('consoleTheValue', data)
-    return data
-}
-
 getData().then(data => {
     let deckID = data.deck_id
     console.log("deckID", deckID)
-    return thisIsProcess(`https://deckofcardsapi.com/api/deck/${deckID}/draw`)
-    let drawCard = thisIsProcess(`https://deckofcardsapi.com/api/deck/${deckID}/draw`)
-    console.log("drawncard", drawCard)
+    return thisIsProcess(`https://deckofcardsapi.com/api/deck/${deckID}/draw/?count=52`)
 })
     .then(drawData => {
-        dp = drawData
-        console.log('draw response', drawData)
-        console.log("checking data", dp)
-        return this.consoleTheValue(dp)
-        return this.consoleTheValue(dp)
+        ALL_CARDS = drawData
+        newGameButton.addEventListener('click', function() {
+            displayCards();
+            let img =document.createElement("img")
+            img.src= ALL_CARDS.cards.image
+            document.body.appendChild(img)
+        })
+    
     })
-    .then(chainedResponse => {
-        console.log('chainedResponse', chainedResponse)
-    })
-    .catch(err => {
-        console.log('err', err)
-    })
+    function displayCards(){
+
+    }
