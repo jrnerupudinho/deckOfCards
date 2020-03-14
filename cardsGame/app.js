@@ -1,14 +1,15 @@
-let ALL_CARDS = [];
-let playerData = [];
-let dealerData = [];
-let startGame = false;
-let playerScore = 0;
-let dealerScore = 0;
-let gameOver = false;
-let playerWon = false;
-let newGameButton = document.getElementById("new-game-button");
-let hitButton = document.getElementById("hit-button");
-let stayButton = document.getElementById("stay-button");
+let ALL_CARDS = [],
+  playerData = [],
+  dealerData = [],
+  startGame = false,
+  playerScore = 0,
+  dealerScore = 0,
+  gameOver = false,
+  playerWon = false,
+  newGameButton = document.getElementById("new-game-button"),
+  hitButton = document.getElementById("hit-button"),
+  stayButton = document.getElementById("stay-button");
+para = document.getElementById("para");
 hitButton.style.display = "none";
 stayButton.style.display = "none";
 
@@ -29,32 +30,34 @@ async function getData() {
 getData()
   .then(data => {
     let deckID = data.deck_id;
-    console.log("deckID", deckID);
     return thisIsProcess(
       `https://deckofcardsapi.com/api/deck/${deckID}/draw/?count=52`
     );
   })
   .then(drawData => {
     ALL_CARDS = drawData;
-    newGameButton.addEventListener("click", function() {
-      startGame = true;
-      gameOver = false;
-      playerWon = false;
-      playerData = [getCards(), getCards()];
-      dealerData = [getCards(), getCards()];
-      let playerLength = playerData.length;
-      let dealerLength = dealerData.length;
-      for (let i = 0; i < playerLength; i++) {
-        playerDisplayCards(playerData[i].image);
-      }
-      for (let i = 0; i < dealerLength; i++) {
-        dealerDisplayCards(dealerData[i].image, i);
-      }
-      newGameButton.style.display = "none";
-      hitButton.style.display = "inline";
-      stayButton.style.display = "inline";
-    });
   });
+
+newGameButton.addEventListener("click", function() {
+  startGame = true;
+  gameOver = false;
+  playerWon = false;
+  playerData = [getCards(), getCards()];
+  dealerData = [getCards(), getCards()];
+  let playerLength = playerData.length;
+  let dealerLength = dealerData.length;
+  for (let i = 0; i < playerLength; i++) {
+    playerDisplayCards(playerData[i].image);
+  }
+  for (let i = 0; i < dealerLength; i++) {
+    dealerDisplayCards(dealerData[i].image, i);
+  }
+  newGameButton.style.display = "none";
+  hitButton.style.display = "inline";
+  stayButton.style.display = "inline";
+  para.style.visibility = "hidden";
+  updateScores();
+});
 function getCards() {
   return ALL_CARDS.cards.shift();
 }
@@ -69,59 +72,62 @@ function dealerDisplayCards(dealer, i) {
   document.body.insertBefore(img, hitButton);
 
   if (i === 0) {
-    img.style.marginLeft = "500px"
+    img.style.marginLeft = "500px";
   }
 }
 hitButton.addEventListener("click", function() {
   let dummydata = ALL_CARDS.cards.pop();
   playerData.push(dummydata);
   displayCards(dummydata.image);
-  checkForEndOfGame()
-})
+  checkForEndOfGame();
+});
 stayButton.addEventListener("click", function() {
-  gameOver = true
-  checkForEndOfGame()
-  displayResult()
-})
+  gameOver = true;
+  checkForEndOfGame();
+  displayResult();
+  console.log(dealerData);
+  console.log(playerData);
+});
 function displayCards(popedData) {
-  let img = document.createElement("img")
-  img.src = popedData
-  document.body.append(img)
+  let img = document.createElement("img");
+  img.src = popedData;
+  document.body.append(img);
 }
 function getCardNumericValue(card) {
   switch (card.value) {
     case "Ace":
-      return 1
+      return 1;
     case "2":
-      return 2
+      return 2;
     case "3":
-      return 3
+      return 3;
     case "4":
-      return 4
+      return 4;
     case "5":
-      return 5
+      return 5;
     case "6":
-      return 6
+      return 6;
     case "7":
-      return 7
+      return 7;
     case "8":
-      return 8
+      return 8;
     case "9":
-      return 9
+      return 9;
     default:
-      return 10
+      return 10;
   }
 }
 function checkForEndOfGame() {
-  updateScores()
-
+  updateScores();
+  let dummyDealerdata = ALL_CARDS.cards.pop();
   if (gameOver) {
     while (
       dealerScore < playerScore &&
       playerScore <= 21 &&
       dealerScore <= 21
     ) {
-      dealerData.push(getCards());
+      dealerData.push(dummyDealerdata);
+      displayCards(dummyDealerdata.image);
       updateScores();
     }
   }
@@ -141,39 +147,37 @@ function checkForEndOfGame() {
   }
 }
 
-function getScore(cardArray){
-    let score = 0;
-    let hasAce = false;
-    const cardLength = cardArray.length 
-    for(let i=0; i<cardLength; i++){
-      let card = cardArray[i];
-      score += getCardNumericValue(card);
-      if(card.value == 'Ace'){
-        hasAce = true;
-      }
-      
-      if(hasAce && score+10<=21){
-        return score+10;
-      }
+function getScore(cardArray) {
+  let score = 0;
+  let hasAce = false;
+  const cardLength = cardArray.length;
+  for (let i = 0; i < cardLength; i++) {
+    let card = cardArray[i];
+    score += getCardNumericValue(card);
+    if (card.value == "Ace") {
+      hasAce = true;
     }
-     return score; 
+
+    if (hasAce && score + 10 <= 21) {
+      return score + 10;
+    }
   }
-  
-  function updateScores(){
-    dealerScore = getScore(dealerData);
-    playerScore = getScore(playerData); 
-  }
-  function displayResult() {
-    if(gameOver){
-        if(playerWon)
-        {
-          alert( "YOU WINS!")
-        }
-        else{
-            alert( "DEALER WINS!")
-        }
-        hitButton.style.display = 'none';
-        stayButton.style.display = 'none';
-        
+  return score;
+}
+
+function updateScores() {
+  dealerScore = getScore(dealerData);
+  playerScore = getScore(playerData);
+}
+function displayResult() {
+  updateScores();
+  if (gameOver) {
+    if (playerWon) {
+      alert("YOU WIN!");
+    } else {
+      alert("DEALER WINS!");
+    }
+    hitButton.style.display = "none";
+    stayButton.style.display = "none";
   }
 }
